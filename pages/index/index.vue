@@ -4,22 +4,23 @@
 		<view class="text-area">
 			<text class="title">{{title}}</text>
 		</view>
+		<view>
+			<button @click="handleLogin">登录</button>
+		</view>
 	</view>
 </template>
 
-<script>
-	export default {
-		data() {
-			return {
-				title: 'Hello UNIAPP'
-			}
-		},
-		onLoad() {
+<script setup>
+	import {
+		ref
+	} from "vue"
 
-		},
-		methods: {
+	const title = ref("Hello UNIAPP")
 
-		}
+	const handleLogin = () => {
+		uni.redirectTo({
+			url: '/pages/menu/menu'
+		})
 	}
 </script>
 

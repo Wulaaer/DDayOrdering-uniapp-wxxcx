@@ -1,5 +1,31 @@
 import { request } from "../../utils/request.js"
 
+// 用户登录
+export const userLogin = (params) => {
+	return request({
+		url: '/user/user/login',
+		method: 'POST',
+		params
+	})
+}
+
+// 获取菜品分类列表	
+export const getList = (params) =>
+	request({
+		url: `/user/category/list`,
+		method: 'GET',
+		params,
+	})
+
+// 根据分类获取菜品列表
+export const getDishList = (params) =>
+	request({
+		url: `/user/dish/list`,
+		method: 'GET',
+		params
+	})
+
+
 // 开桌
 export const openTable = (params) =>
 	request({
@@ -31,14 +57,6 @@ export const getMoreNorm = (params) =>
 		params,
 	})
 
-// 获取菜品分类列表	
-export const getList = (params) =>
-	request({
-		url: `/user/dish/category`,
-		method: 'GET',
-		params,
-	})
-
 // 获取菜品详情	
 export const getDishDetail = (params) =>
 	request({
@@ -47,13 +65,7 @@ export const getDishDetail = (params) =>
 		params,
 	})
 
-// 根据分类获取菜品列表
-export const getDishList = (params) =>
-	request({
-		url: `/user/dish/dishPageList/${params.categoryId}/${params.type}/${params.page}/${params.pageSize}`,
-		method: 'GET',
-		params
-	})
+
 
 // 加菜
 export const addDish = (params) =>
@@ -87,15 +99,6 @@ export const payOrder = (params) =>
 		params
 	})
 
-
-// 用户登录
-export const userLogin = (params) => {
-	return request({
-		url: '/user/user/login',
-		method: 'POST',
-		params
-	})
-}
 
 // 菜品和套餐的分类
 export const getCategoryList = (params) => {

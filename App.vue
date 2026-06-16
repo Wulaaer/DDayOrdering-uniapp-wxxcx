@@ -44,7 +44,7 @@
 						// 5. 存入 Pinia 全局用户仓库
 						const userStore = useUserData()
 						userStore.setLoginData(res.data)
-						console.log(`用户id = ${userStore.id}`)
+						// console.log(`用户id = ${userStore.id}`)
 
 						uni.showToast({
 							title: '登录成功',

@@ -15,11 +15,14 @@
 				"navigationBarTitleText": "选择规格",
 				"animationType": "slide-in-bottom"
 			}
+		},
+		{
+			"path": "pages/orders/orders"
 		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
+		"navigationBarTitleText": "湖南砍肉粉",
 		"navigationBarBackgroundColor": "#F8F8F8",
 		"backgroundColor": "#F8F8F8"
 	},

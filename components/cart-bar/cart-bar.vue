@@ -44,10 +44,6 @@ import { useCartStore } from '@/stores/cart'
 const cartStore = useCartStore()
 const expand = ref(false)
 
-uni.$on('cart-bar-close', () => {
-  expand.value = false
-})
-
 // 清空
 function handleClear() {
   uni.showModal({

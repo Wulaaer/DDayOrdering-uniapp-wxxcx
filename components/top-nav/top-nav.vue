@@ -1,54 +1,58 @@
 <template>
-	<view class="top-nav">
-		<view class="shop-name">某某美食店</view>
-		<view class="user-info">
-			<image class="avatar" src="/static/default-avatar.png"></image>
-			<text class="username">{{ nickname || '游客' }}</text>
-		</view>
-	</view>
+  <view class="top-nav">
+    <!-- 左侧用户图标 -->
+    <view class="user-btn" @click="openMenu">
+      <text class="uni-icon uni-icon-person">☰</text>
+    </view>
+
+    <!-- 右侧桌号 -->
+    <view class="table">桌号：A08</view>
+  </view>
 </template>
 
 <script setup>
-	// 从父组件传入用户名
-	const props = defineProps({
-		nickname: {
-			type: String,
-			default: ''
-		}
-	})
+function openMenu() {
+  uni.showActionSheet({
+    itemList: ['我的账单', '退出登录'],
+    success(res) {
+      if (res.tapIndex === 0) {
+        uni.navigateTo({
+          url: '/pages/orders/orders'
+        })
+      } else if (res.tapIndex === 1) {
+        uni.showToast({ title: '退出登录', icon: 'none' })
+        // 这里可加退出逻辑
+      }
+    }
+  })
+}
 </script>
 
 <style scoped>
-	.top-nav {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 20rpx 30rpx;
-		background-color: #fff;
-		border-bottom: 1rpx solid #eee;
-	}
+.top-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 30rpx;
+  background: #fff;
+  border-bottom: 1rpx solid #eee;
+}
 
-	.shop-name {
-		font-size: 32rpx;
-		font-weight: bold;
-		color: #333;
-	}
+.user-btn {
+  font-size: 32rpx;
+  color: #333;
+  line-height: 1;
+}
 
-	.user-info {
-		display: flex;
-		align-items: center;
-	}
+.table {
+  font-size: 24rpx;
+  color: #666;
+}
 
-	.avatar {
-		width: 50rpx;
-		height: 50rpx;
-		border-radius: 50%;
-		background-color: #f2f2f2;
-		margin-right: 12rpx;
-	}
-
-	.username {
-		font-size: 26rpx;
-		color: #666;
-	}
+/* 线性图标字体样式 */
+.icon {
+  font-family: "uniicons";
+  font-size: 34rpx;
+  color: #333;
+}
 </style>

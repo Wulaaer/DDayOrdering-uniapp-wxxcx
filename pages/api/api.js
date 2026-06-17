@@ -26,6 +26,35 @@ export const getDishList = (params) =>
 	})
 
 
+// 查询历史订单
+export const queryOrderUserPage = (params) => {
+	return request({
+		url: '/user/order/historyOrders',
+		method: 'GET',
+		params
+	})
+}
+
+// 用户下单
+export const submitOrderSubmit = (params) => {
+	return request({
+		url: '/user/order/submit',
+		method: 'POST',
+		params
+	})
+}
+
+// 提交订单 
+export const payOrder = (params) =>
+	request({
+		url: `/user/order/pay/${params.tableId}/${params.jsCode}`,
+		method: 'GET',
+		params
+	})
+
+
+
+
 // 开桌
 export const openTable = (params) =>
 	request({
@@ -91,13 +120,6 @@ export const clearOrder = (params) =>
 		params
 	})
 
-// 提交订单 
-export const payOrder = (params) =>
-	request({
-		url: `/user/order/pay/${params.tableId}/${params.jsCode}`,
-		method: 'GET',
-		params
-	})
 
 
 // 菜品和套餐的分类
@@ -196,24 +218,7 @@ export const delShoppingCart = (params) => {
 }
 
 
-// 最近订单和历史订单
-export const queryOrderUserPage = (params) => {
-	return request({
-		url: '/user/order/userPage',
-		method: 'GET',
-		params
-	})
-}
 
-
-// 用户下单
-export const submitOrderSubmit = (params) => {
-	return request({
-		url: '/user/order/submit',
-		method: 'POST',
-		params
-	})
-}
 
 
 // 查询地址列表

@@ -17,7 +17,7 @@ function openMenu() {
     success(res) {
       if (res.tapIndex === 0) {
         uni.navigateTo({
-          url: '/pages/orders/orders'
+          url: '/pages/history/history'
         })
       } else if (res.tapIndex === 1) {
         uni.showToast({ title: '退出登录', icon: 'none' })

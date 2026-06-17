@@ -8,6 +8,13 @@
 		},
 		{
 			"path": "pages/menu/menu"
+		},
+		{
+			"path": "pages/menu/components/sku",
+			"style": {
+				"navigationBarTitleText": "选择规格",
+				"animationType": "slide-in-bottom"
+			}
 		}
 	],
 	"globalStyle": {

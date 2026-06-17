@@ -32,12 +32,16 @@
 			</view>
 		</scroll-view>
 	</view>
+	
+	<!-- 购物车组件 -->
+	<cart-bar></cart-bar>
 </template>
 
 <script>
 	import TopNav from '@/components/top-nav/top-nav.vue'
 	import { getList } from '../api/api';
 	import { getDishList } from '../api/api';
+	import CartBar from '@/components/cart-bar/cart-bar.vue'
 
 	export default {
 
@@ -109,12 +113,11 @@
 				this.currentType = typeId;
 				this.toView = "type-" + typeId;
 			},
-			// 加上这个方法
+			// 跳转到选菜品规格页面
 			openSpec(food) {
-				uni.showModal({
-					title: '选择规格',
-					content: food.name
-				})
+				uni.navigateTo({
+				    url: `/pages/menu/components/sku?food=${encodeURIComponent(JSON.stringify(food))}`
+				  })
 			}
 		}
 	};

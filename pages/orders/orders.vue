@@ -2,22 +2,20 @@
   <view class="history-page">
     <!-- 顶部标题 -->
     <view class="page-title">历史订单</view>
-	<!-- 加载中提示 -->
-	<view class="loading" v-if="loading">
-	  加载中...
-	</view>
 
     <!-- 订单列表 -->
-    <scroll-view scroll-y class="order-list">
+    <scroll-view 
+      scroll-y 
+      class="order-list"
+      @scrolltolower="loadMore"
+    >
       <!-- 单个订单项 -->
       <view class="order-item" v-for="order in orderList" :key="order.id">
-        <!-- 订单头：订单号 + 状态 -->
         <view class="order-header">
           <text>订单号：{{ order.orderNo }}</text>
           <text class="status">{{ order.statusText }}</text>
         </view>
 
-        <!-- 商品列表 -->
         <view class="goods-list">
           <view class="goods-item" v-for="good in order.goods" :key="good.id">
             <view class="name">{{ good.name }}</view>
@@ -27,15 +25,25 @@
           </view>
         </view>
 
-        <!-- 订单底部：时间 + 实付 -->
         <view class="order-footer">
           <text>{{ order.createTime }}</text>
           <text>实付：¥{{ order.totalPrice }}</text>
         </view>
       </view>
 
+      <!-- 底部加载提示 -->
+      <view class="load-more" v-if="noMore === false">
+        <text v-if="loading">加载中...</text>
+        <text v-else>上拉加载更多</text>
+      </view>
+
+      <!-- 无更多数据 -->
+      <view class="load-more" v-if="noMore === true">
+        没有更多订单了
+      </view>
+
       <!-- 无订单时显示 -->
-      <view class="empty" v-if="orderList.length === 0">
+      <view class="empty" v-if="orderList.length === 0 && !loading">
         暂无历史订单
       </view>
     </scroll-view>
@@ -49,7 +57,10 @@ export default {
   data() {
     return {
       orderList: [],
-      loading: false // 加载状态
+      loading: false,    // 是否正在加载
+      pageNo: 1,        // 当前页码
+      pageSize: 10,     // 每页条数
+      noMore: false     // 是否还有更多数据
     }
   },
 
@@ -58,43 +69,63 @@ export default {
   },
 
   methods: {
-    // 获取历史订单列表
+    // 初始化 / 下拉刷新用（重置列表）
     async getOrderList() {
+      this.pageNo = 1
+      this.orderList = []
+      this.noMore = false
+      await this.requestOrderList()
+    },
+
+    // 上拉加载更多（追加数据）
+    async loadMore() {
+      if (this.loading || this.noMore) return
+      this.pageNo++
+      await this.requestOrderList()
+    },
+
+    // 真正请求接口
+    async requestOrderList() {
       this.loading = true
 
       try {
-        // 调用接口
         const res = await queryOrderUserPage({
-          page: "1",
-          pageSize: "10"
+          page: this.pageNo,
+          pageSize: this.pageSize
         })
 
-        // 返回结构 res.data.records
         const list = res.data?.records || []
 
-        // 格式化数据（和前端字段对应）
-        this.orderList = list.map(item => ({
+        // 判断是否到底了
+        if (list.length < this.pageSize) {
+          this.noMore = true
+        }
+
+        // 格式化
+        const formatList = list.map(item => ({
           id: item.id,
           orderNo: item.number,
-          statusText: this.formatStatus(item.status), // 状态翻译
+          statusText: this.formatStatus(item.status),
           createTime: item.orderTime,
           totalPrice: item.amount,
-          // 订单项，后端一般叫 orderItemList / items
           goods: item.orderDetailList || []
         }))
 
+        // 第一页覆盖，后面页追加
+        if (this.pageNo === 1) {
+          this.orderList = formatList
+        } else {
+          this.orderList = [...this.orderList, ...formatList]
+        }
+
       } catch (err) {
-        console.error('获取订单失败', err)
-        uni.showToast({
-          title: '加载订单失败',
-          icon: 'none'
-        })
+        console.error('加载失败', err)
+        uni.showToast({ title: '加载失败', icon: 'none' })
       } finally {
         this.loading = false
       }
     },
 
-    // 订单状态翻译（后端数字 → 中文）
     formatStatus(status) {
       const statusMap = {
         1: '待支付',
@@ -109,13 +140,6 @@ export default {
 </script>
 
 <style scoped>
-.loading {
-  text-align: center;
-  padding: 50rpx 0;
-  font-size: 28rpx;
-  color: #666;
-}
-	
 .history-page {
   padding: 20rpx 30rpx;
   background-color: #f6f6f6;
@@ -131,9 +155,7 @@ export default {
 }
 
 .order-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
+  display: block;
 }
 
 .order-item {
@@ -141,7 +163,7 @@ export default {
   border-radius: 12rpx;
   padding: 30rpx;
   box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
-  margin-bottom: 20rpx; /* 用这个控制账单之间的间距 */
+  margin-bottom: 30rpx;
 }
 
 .order-header {
@@ -171,10 +193,6 @@ export default {
   margin-bottom: 12rpx;
 }
 
-.goods-item:last-child {
-  margin-bottom: 0;
-}
-
 .order-footer {
   display: flex;
   justify-content: space-between;
@@ -182,6 +200,13 @@ export default {
   color: #999;
   padding-top: 20rpx;
   border-top: 1rpx solid #f0f0f0;
+}
+
+.load-more {
+  text-align: center;
+  padding: 30rpx 0;
+  font-size: 26rpx;
+  color: #999;
 }
 
 .empty {

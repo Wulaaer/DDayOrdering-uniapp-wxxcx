@@ -5,7 +5,11 @@
 	export default {
 		onLaunch: function() {
 			console.log('App Launch')
+			uni.showLoading({
+				title: '登录中...',
+			})
 			this.wxLogin()
+			uni.hideLoading()
 		},
 		onShow: function() {
 			console.log('App Show')

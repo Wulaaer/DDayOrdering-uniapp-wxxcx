@@ -15,6 +15,12 @@ export const useUserData = defineStore('user', {
 		this.id = data.id
 		this.openid = data.openid
 		this.token = data.token
-    }
+    },
+	setUserInput(data) {
+		this.userNum = data.userNum
+		this.tableNumber = `T${data.tableNumber.value}`
+		console.log('userData写入userNum: ' + this.userNum )
+		console.log('userData写入tableNumber: ' + this.tableNumber )
+	}
   }
 })

@@ -10,7 +10,7 @@
       @scrolltolower="loadMore"
     >
       <!-- 单个订单项 -->
-      <view class="order-item" v-for="order in orderList" :key="order.id">
+      <view class="order-item" v-for="order in orderList" :key="order.id" @click="handleOrderDetail(order)">
         <view class="order-header">
           <text>订单号：{{ order.orderNo }}</text>
           <text class="status">{{ order.statusText }}</text>
@@ -60,15 +60,30 @@ export default {
       loading: false,    // 是否正在加载
       pageNo: 1,        // 当前页码
       pageSize: 10,     // 每页条数
-      noMore: false     // 是否还有更多数据
+      noMore: false,    // 是否还有更多数据
     }
   },
 
   onLoad() {
+	uni.showLoading({ title: '加载中' })
     this.getOrderList()
+	uni.hideLoading()
   },
 
   methods: {
+	  handleOrderDetail(order) {
+		  console.log(JSON.stringify(order, null, 2))
+		  if (order.statusText === '待支付') {
+			  uni.navigateTo({
+			    url: `/pages/order/pending/pending?id=${order.id}`
+			  })
+		  } else {
+			  uni.navigateTo({
+			    url: `/pages/order/success/success?id=${order.id}`
+			  })
+		  }
+	  },
+	  
     // 初始化 / 下拉刷新用（重置列表）
     async getOrderList() {
       this.pageNo = 1
@@ -130,8 +145,8 @@ export default {
       const statusMap = {
         1: '待支付',
         2: '已支付',
-        5: '已完成',
-        6: '已取消'
+        3: '已完成',
+        4: '已取消'
       }
       return statusMap[status] || '未知状态'
     }

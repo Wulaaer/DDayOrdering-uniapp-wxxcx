@@ -5,7 +5,7 @@
     <view class="section base-section">
       <view class="item">
         <text class="label">桌号</text>
-        <text class="value">A08</text>
+        <text class="value">{{userStore.tableNumber}}</text>
       </view>
 	  
       <view class="check-section">

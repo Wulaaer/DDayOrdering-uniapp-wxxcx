@@ -25,6 +25,10 @@
 		{
 		  "path": "pages/order/success/success",
 		  "style": { "navigationBarTitleText": "支付成功" }
+		},
+		{
+		  "path": "pages/order/pending/pending",
+		  "style": { "navigationBarTitleText": "待支付" }
 		}
 	],
 	"globalStyle": {

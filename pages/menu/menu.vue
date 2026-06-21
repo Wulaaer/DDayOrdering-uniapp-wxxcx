@@ -1,5 +1,5 @@
 <template>
-	<top-nav :nickname="Wulaaer"></top-nav>
+	<top-nav></top-nav>
 
 	<view class="menu-page">
 
@@ -72,9 +72,7 @@
 			  // 1. 获取全部分类
 			  async loadTypeList() {
 			    try {
-			      const res = await getList({
-			        type: "1"
-			      })
+			      const res = await getList()
 			      if (res.code === 1) {
 			        this.typeList = res.data
 			        console.log("分类列表：", this.typeList)

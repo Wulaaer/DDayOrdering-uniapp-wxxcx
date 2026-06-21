@@ -18,6 +18,9 @@
 		},
 		{
 			"path": "pages/history/history"
+		},
+		{
+			"path": "pages/order/confirm/confirm"
 		}
 	],
 	"globalStyle": {

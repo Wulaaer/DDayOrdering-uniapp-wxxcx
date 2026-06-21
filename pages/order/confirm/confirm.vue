@@ -54,18 +54,6 @@
       </view>
     </view>
 
-    <!-- 3. 搭配推荐（横向滚动） -->
-    <view class="section">
-      <view class="section-title">搭配推荐</view>
-      <scroll-view class="recommend-scroll" scroll-x>
-        <view class="recommend-item" v-for="item in recommendList" :key="item.id">
-          <view class="rec-name">{{ item.name }}</view>
-          <view class="rec-price">¥{{ item.price }}</view>
-          <button class="add-btn" @click="addToCart(item)">+</button>
-        </view>
-      </scroll-view>
-    </view>
-
     <!-- 4. 备注 -->
     <view class="section">
       <view class="section-title">备注</view>
@@ -88,71 +76,163 @@
 </template>
 
 <script>
-// 引入
 import { useCartStore } from '@/stores/cart'
+import { useUserData } from '@/stores/userData'
 import { storeToRefs } from 'pinia'
+import { submitOrderSubmit, payOrder } from '@/pages/api/api.js'
 
 export default {
-	
   data() {
     return {
       eatType: 1,
       remark: '',
-      recommendList: [
-        { id: 101, name: '薯条', price: 6 },
-        { id: 102, name: '鸡翅', price: 8 },
-        { id: 103, name: '甜筒', price: 3 },
-        { id: 104, name: '鸡块', price: 9 },
-        { id: 105, name: '咖啡', price: 12 }
-      ],
-      showPwdPopup: false,
-      paySuccess: false
+      paySuccess: false,
+      submitting: false
     }
   },
 
   computed: {
-    // 正确用法：先创建 store，再解构
+    userStore() {
+      return useUserData()
+    },
     cartStore() {
       return useCartStore()
     },
-    // 购物车列表（响应式）
     cartList() {
       const { list } = storeToRefs(this.cartStore)
       return list.value
     },
-    // 总价
     totalPrice() {
       return this.cartStore.totalPrice
     },
-    // 最终实付
     finalTotal() {
       let total = this.totalPrice
       if (this.eatType === 2) total += 1
       return Number(total.toFixed(2))
+    },
+    userNum() {
+      return this.userStore.userNum
+    },
+    tableNumber() {
+      return this.userStore.tableNumber
     }
   },
 
   methods: {
-    // 添加推荐到购物车
-    addToCart(item) {
-      this.cartStore.addItem(item)
+    async toSubmitOrder() {
+      if (!this.cartList || this.cartList.length === 0) {
+        uni.showToast({ title: '购物车为空', icon: 'none' })
+        return
+      }
+      if (this.submitting) return
+
+      // 先创建订单，成功后再进入支付确认流程
+      const orderRes = await this.handleCreateOrder()
+      if (orderRes) {
+        await this.handlePayOrder(orderRes)
+      }
     },
 
-	// 点击下单支付 → 弹出确认框
-    toSubmitOrder() {
-		// 弹出确认框
+    async handleCreateOrder() {
+      this.submitting = true
+      uni.showLoading({ title: '提交订单中...' })
+
+      try {
+        const dishList = this.cartList.map(item => ({
+          dishId: item.id,
+          number: item.count,
+          name: item.name,
+          image: item.image,
+          amount: item.price * item.count,
+          dishFlavor: item.specText || ''
+        }))
+
+        const orderParams = {
+          amount: this.finalTotal,
+          payMethod: 1,
+          remark: this.remark,
+          userNum: this.userNum,
+          tableNumber: this.tableNumber,
+          dishList: dishList
+        }
+
+        const orderRes = await submitOrderSubmit(orderParams)
+        const orderNumber = orderRes.data?.orderNumber
+        if (!orderNumber) throw new Error('订单创建失败')
+
+        return orderRes
+      } catch (err) {
+        console.error('下单失败:', err)
+        uni.showToast({
+          title: err.message || '下单失败，请重试',
+          icon: 'none'
+        })
+        return null
+      } finally {
+        this.submitting = false
+        uni.hideLoading()
+      }
     },
 
+    async handlePayOrder(orderRes) {
+      const orderNumber = orderRes.data?.orderNumber
 
-    // 返回首页
-    goBack() {
-      uni.switchTab({
-        url: '/pages/index/index'
+      // 先弹窗确认，用户点确认后再showLoading
+      uni.showModal({
+        title: '确认支付',
+        content: `订单已创建，共${this.cartList.length}件商品，实付 ¥${this.finalTotal}\n`,
+        confirmText: '确认支付',
+        cancelText: '再想想',
+        success: async (res) => {
+          if (res.confirm) {
+            // 用户确认后才显示loading并调支付接口
+            uni.showLoading({ title: '唤起支付中...' })
+            try {
+              const payRes = await payOrder({
+                orderNumber: orderNumber,
+                payMethod: 1
+              })
+
+              // 如需真实微信支付，取消下面注释：
+              // if (payRes.data && payRes.data.timeStamp) {
+              //   await uni.requestPayment({ provider: 'wxpay', ...payRes.data })
+              // }
+
+              this.cartStore.clearCart()
+              this.paySuccess = true
+              uni.showToast({ title: '支付成功', icon: 'success' })
+
+              setTimeout(() => {
+				  // console.log(JSON.stringify(payRes, null, 2))
+                uni.redirectTo({
+                  url: `/pages/order/success/success?id=${payRes.data.id}`
+                })
+              }, 1500)
+            } catch (err) {
+              console.error('支付失败:', err)
+              if (err.errMsg && err.errMsg.includes('cancel')) {
+                uni.showToast({ title: '已取消支付', icon: 'none' })
+              } else {
+                uni.showToast({
+                  title: err.message || '支付失败，请重试',
+                  icon: 'none'
+                })
+              }
+            } finally {
+              // 确保loading一定被关闭
+              uni.hideLoading()
+            }
+          } else {
+            // 用户选择"再想想"，提示未支付订单已保留
+            uni.showToast({ title: '订单已保存至待支付', icon: 'none' })
+          }
+        }
       })
     }
   }
 }
 </script>
+
 <style scoped>
 .confirm-page {
   background: #f6f6f6;

@@ -5,6 +5,8 @@ export const useUserData = defineStore('user', {
 	id: '',
 	openid: '',
     token: '',
+	userNum: 1,
+	tableNumber: 'T1',
   }),
 
   actions: {
@@ -13,6 +15,6 @@ export const useUserData = defineStore('user', {
 		this.id = data.id
 		this.openid = data.openid
 		this.token = data.token
-    },
+    }
   }
 })

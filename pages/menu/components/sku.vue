@@ -130,6 +130,7 @@ export default {
         id: this.food.id,
         name: this.food.name,
         price: this.currentPrice,
+		image: this.food.image,
         specText: specParts.join('｜'),
         count: 1
       }

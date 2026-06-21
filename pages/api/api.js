@@ -40,14 +40,22 @@ export const submitOrderSubmit = (params) => {
 	return request({
 		url: '/user/order/submit',
 		method: 'POST',
-		params
+		params // {amount, payMethod, remark, userNum, tableNumber, dishList}
 	})
 }
 
-// 使用微信支付订单
+// 订单支付
 export const payOrder = (params) =>
 	request({
-		url: '/user/order/submit',
-		method: 'POST',
-		params
+		url: '/user/order/payment',
+		method: 'PUT',
+		params // {orderNumber, payMethod}
 	})
+
+// 根据id查询订单详情
+export const getOrderDetailById = (id) => {
+	return request({
+		url: `/user/order/orderDetail/${id}`,
+		method: 'GET',
+	})
+}

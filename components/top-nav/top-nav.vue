@@ -6,11 +6,15 @@
     </view>
 
     <!-- 右侧桌号 -->
-    <view class="table">桌号：A08</view>
+    <view class="table">桌号：{{userData.tableNumber}}</view>
   </view>
 </template>
 
 <script setup>
+import { useUserData } from '../../stores/userData';
+
+const userData = useUserData()	
+
 function openMenu() {
   uni.showActionSheet({
     itemList: ['我的账单', '退出登录'],

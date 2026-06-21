@@ -21,6 +21,10 @@
 		},
 		{
 			"path": "pages/order/confirm/confirm"
+		},
+		{
+		  "path": "pages/order/success/success",
+		  "style": { "navigationBarTitleText": "支付成功" }
 		}
 	],
 	"globalStyle": {

@@ -1,4 +1,6 @@
-import { request } from "../../utils/request.js"
+import {
+	request
+} from "../../utils/request.js"
 
 // 用户登录
 export const userLogin = (params) => {
